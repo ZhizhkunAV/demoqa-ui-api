@@ -1,30 +1,43 @@
 package tests;
 
+import io.restassured.response.Response;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import static io.qameta.allure.Allure.step;
-import static io.restassured.RestAssured.given;
 
+import static com.codeborne.selenide.Condition.text;
+import static com.codeborne.selenide.Selenide.$;
+import static com.codeborne.selenide.Selenide.open;
+import static com.codeborne.selenide.WebDriverRunner.getWebDriver;
+import static io.restassured.RestAssured.given;
+import static io.restassured.http.ContentType.JSON;
+
+import org.openqa.selenium.Cookie;
 
 @DisplayName("тест")
-public class gitHaveTexte{
+public class gitHaveTexte extends TestBase {
+
+    @DisplayName("Авторизация пользователя")
     @Test
-    void loginWithApiTest() {
-        step("Get authorization cookie by api and set it to browser", () -> {
-            String authCookieKey = "NOPCOMMERCE.AUTH";
-            String authCookieValue = given()
-                    .contentType("application/x-www-form-urlencoded")
-                    .formParam("UserName", "testtestov31")
-                    .formParam("Password", "Testtestov31_%")
-                    .when()
-                    .post("https://demoqa.com/profile")
-                    .then()
-                    .log().all()
-                    .statusCode(200)
-                    .extract()
-                    .cookie(authCookieKey);
+    void successfulLoginTest() {
+        String authorizationData = "{\"userName\":\"testtestov31\",\"password\":\"Testtestov31_%\"}";
+        Response authResponse = given()
+                .log().uri()
+                .log().method()
+                .log().body()
+                .contentType(JSON)
+                .body(authorizationData)
+                .when()
+                .post("/Account/v1/Login")
+                .then()
+                .log().status()
+                .log().body()
+                .statusCode(200)
+                .extract().response();
 
+        open("/favicon.ico");
+        getWebDriver().manage().addCookie(new Cookie("userID", authResponse.path("userId")));
+        getWebDriver().manage().addCookie(new Cookie("expires", authResponse.path("expires")));
+        getWebDriver().manage().addCookie(new Cookie("token", authResponse.path("token")));
 
-        });
     }
 }
