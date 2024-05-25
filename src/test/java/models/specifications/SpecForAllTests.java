@@ -1,4 +1,4 @@
-package specifications;
+package models.specifications;
 
 public class SpecForAllTests {
 }

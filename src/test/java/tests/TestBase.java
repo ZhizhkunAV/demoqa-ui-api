@@ -12,9 +12,11 @@ import java.util.Map;
 
 import static com.codeborne.selenide.Configuration.*;
 import static com.codeborne.selenide.Selenide.closeWebDriver;
+import static helpers.Attach.*;
+import static helpers.Attach.addVideo;
 
 
-public class TestBase {
+public class TestBase  {
 
     @BeforeAll
     static void setup() {
@@ -33,5 +35,14 @@ public class TestBase {
         browserCapabilities = capabilities;
 
         SelenideLogger.addListener("AllureSelenide", new AllureSelenide());
+    }
+
+    @AfterEach
+    void shutDown() {
+        screenshotAs("Last screenshot");
+        pageSource();
+        browserConsoleLogs();
+        addVideo();
+        closeWebDriver();
     }
 }
