@@ -6,12 +6,12 @@ import lombok.Data;
 import java.util.Date;
 @Data
 public class AuthResponse {
-    public String userId;
-    public String username;
-    public String password;
-    public String token;
-    public Date expires;
+    private String userId;
+    private String username;
+    private String password;
+    private String token;
+    private String expires;
     @JsonProperty("created_date")
-    public Date created_date;
-    public boolean isActive;
+    private String createdDate;
+    private String isActive;
 }

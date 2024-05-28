@@ -1,7 +1,9 @@
 package tests;
 
 import io.restassured.response.Response;
+import models.lombok.AddBookRequest;
 import models.lombok.AuthRequest;
+import models.lombok.AuthResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.Cookie;
@@ -12,12 +14,13 @@ import static com.codeborne.selenide.Selenide.open;
 import static com.codeborne.selenide.WebDriverRunner.getWebDriver;
 import static io.restassured.RestAssured.given;
 import static java.lang.String.format;
+import static io.qameta.allure.Allure.step;
 
 
 public class DeleteBookInStoreTest extends TestBase {
     ProfilePage profilepage = new ProfilePage();
 
-    @DisplayName("Авторизация пользователя")
+    @DisplayName("Удаление книги из корзины онлайн магазина")
     @Test
     void addBookToCollectionTest() {
 
@@ -27,24 +30,30 @@ public class DeleteBookInStoreTest extends TestBase {
         authRequest.setUserName("First");
         authRequest.setPassword("Kjrj1923@Q");
 
-        Response authResponse = given(LoginRequestSpecification)
-                .body(authRequest)
-                .when()
-                .post("")
-                .then()
-                .spec(LoginResponseSpecification)
-                .extract().response();
+        AuthResponse authResponse =
+                step("Авторизация пользователя", () ->
+                        given(LoginRequestSpecification)
+                                .body(authRequest)
+                                .when()
+                                .post("")
+                                .then()
+                                .spec(LoginResponseSpecification)
+                                .extract().as(AuthResponse.class)
+                );
 
         String isbn = "9781449365035";
         String bookData = format("{\"userId\":\"%s\",\"collectionOfIsbns\":[{\"isbn\":\"%s\"}]}",
-                authResponse.path("userId"), isbn);
+                authResponse.getUserId(), isbn);
 
 // Добавляем книгу пользователю post
+        AddBookRequest addBookRequest = new AddBookRequest();
+        addBookRequest.setUserId();
+        addBookRequest.setCollectionOfIsbns();
 
         given(AddOneBookRequestSpecification)
 
-                .header("Authorization", "Bearer " + authResponse.path("token"))
-                .body(bookData)
+                .header("Authorization", "Bearer " + authResponse.getToken())
+                .body(addBookRequest)
                 .when()
                 .post("")
                 .then()
@@ -53,8 +62,8 @@ public class DeleteBookInStoreTest extends TestBase {
 // Удаление книг
 
         given(DeleteOneBookRequestSpecification)
-                .header("Authorization", "Bearer " + authResponse.path("token"))
-                .queryParams("UserId", authResponse.path("userId"))
+                .header("Authorization", "Bearer " + authResponse.getToken())
+                .queryParams("UserId", authResponse.getUserId())
                 .when()
                 .delete("")
                 .then()
@@ -63,13 +72,15 @@ public class DeleteBookInStoreTest extends TestBase {
 // Открываем браузер вставляем куки
 
         open("/images/bookimage0.jpg");
-        getWebDriver().manage().addCookie(new Cookie("userID", authResponse.path("userId")));
-        getWebDriver().manage().addCookie(new Cookie("expires", authResponse.path("expires")));
-        getWebDriver().manage().addCookie(new Cookie("token", authResponse.path("token")));
+        getWebDriver().manage().addCookie(new Cookie("userID", authResponse.getUserId()));
+        getWebDriver().manage().addCookie(new Cookie("expires", authResponse.getExpires()));
+        getWebDriver().manage().addCookie(new Cookie("token", authResponse.getToken()));
 
         profilepage.openProfilePage()
                 .checkUserName()
                 .checkNameBookInList()
                 .checkBook();
+
+
     }
 }
