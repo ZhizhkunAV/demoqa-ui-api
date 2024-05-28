@@ -1,18 +1,18 @@
 package tests;
 
 import io.restassured.response.Response;
+import models.lombok.AuthRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.Cookie;
 import pageobjects.ProfilePage;
 
-import static com.codeborne.selenide.Condition.hidden;
-import static com.codeborne.selenide.Condition.text;
-import static com.codeborne.selenide.Selenide.*;
+import static api.specifications.SpecForAllTests.*;
+import static com.codeborne.selenide.Selenide.open;
 import static com.codeborne.selenide.WebDriverRunner.getWebDriver;
 import static io.restassured.RestAssured.given;
-import static io.restassured.http.ContentType.JSON;
 import static java.lang.String.format;
+
 
 public class DeleteBookInStoreTest extends TestBase {
     ProfilePage profilepage = new ProfilePage();
@@ -23,22 +23,17 @@ public class DeleteBookInStoreTest extends TestBase {
 
 // Авторизация пользователя - post
 
-        String authData = "{\"userName\":\"First\",\"password\":\"Kjrj1923@Q\"}";
+        AuthRequest authRequest = new AuthRequest();
+        authRequest.setUserName("First");
+        authRequest.setPassword("Kjrj1923@Q");
 
-        Response authResponse = given()
-                .log().uri()
-                .log().method()
-                .log().body()
-                .contentType(JSON)
-                .body(authData)
+        Response authResponse = given(LoginRequestSpecification)
+                .body(authRequest)
                 .when()
-                .post("/Account/v1/Login")
+                .post("")
                 .then()
-                .log().status()
-                .log().body()
-                .statusCode(200)
+                .spec(LoginResponseSpecification)
                 .extract().response();
-
 
         String isbn = "9781449365035";
         String bookData = format("{\"userId\":\"%s\",\"collectionOfIsbns\":[{\"isbn\":\"%s\"}]}",
@@ -46,36 +41,24 @@ public class DeleteBookInStoreTest extends TestBase {
 
 // Добавляем книгу пользователю post
 
-        given()
-                .log().uri()
-                .log().method()
-                .log().body()
-                .contentType(JSON)
+        given(AddOneBookRequestSpecification)
+
                 .header("Authorization", "Bearer " + authResponse.path("token"))
                 .body(bookData)
                 .when()
-                .post("/BookStore/v1/Books")
+                .post("")
                 .then()
-                .log().status()
-                .log().body()
-                .statusCode(201);
+                .spec(AddOneBookResponseSpecification);
 
+// Удаление книг
 
-        // Удаление книг
-
-        given()
-                .log().uri()
-                .log().method()
-                .log().body()
-                .contentType(JSON)
+        given(DeleteOneBookRequestSpecification)
                 .header("Authorization", "Bearer " + authResponse.path("token"))
                 .queryParams("UserId", authResponse.path("userId"))
                 .when()
-                .delete("/BookStore/v1/Books")
+                .delete("")
                 .then()
-                .log().status()
-                .log().body()
-                .statusCode(204);
+                .spec(DeleteOneBookResponseSpecification);
 
 // Открываем браузер вставляем куки
 
