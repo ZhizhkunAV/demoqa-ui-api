@@ -1,8 +1,11 @@
 package tests;
 
-import io.restassured.response.Response;
+import io.qameta.allure.Owner;
+import io.qameta.allure.Severity;
+import io.qameta.allure.SeverityLevel;
 import models.lombok.*;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.Cookie;
 import pageobjects.ProfilePage;
@@ -13,88 +16,103 @@ import java.util.List;
 import static api.specifications.SpecForAllTests.*;
 import static com.codeborne.selenide.Selenide.open;
 import static com.codeborne.selenide.WebDriverRunner.getWebDriver;
-import static io.restassured.RestAssured.given;
-import static java.lang.String.format;
 import static io.qameta.allure.Allure.step;
+import static io.restassured.RestAssured.given;
 
-
+@DisplayName("Автотестирование UI+API")
 public class DeleteBookInStoreTest extends TestBase {
-    String isbn = "9781449365035";
-    ProfilePage profilepage = new ProfilePage();
+    public String isbn = "9781449365035";
+    public String userID, token;
 
 
     @DisplayName("Удаление книги из корзины онлайн магазина")
+    @Severity(SeverityLevel.BLOCKER)
+    @Tag("alls")
+    @Owner("ZhizhkunAV")
     @Test
     void addBookToCollectionTest() {
+        // Авторизация пользователя - post
+        step("Авторизация пользователя через API с добавлением cookies авторизации через UI", () -> {
 
-// Авторизация пользователя - post
+            AuthRequest authRequest = new AuthRequest();
+            authRequest.setUserName("First");
+            authRequest.setPassword("Kjrj1923@Q");
 
-        AuthRequest authRequest = new AuthRequest();
-        authRequest.setUserName("First");
-        authRequest.setPassword("Kjrj1923@Q");
+            AuthResponse authResponse =
+                    step("Perform a POST request", () ->
+                            given(LoginRequestSpecification)
+                                    .body(authRequest)
+                                    .when()
+                                    .post("")
+                                    .then()
+                                    .spec(LoginResponseSpecification)
+                                    .extract().as(AuthResponse.class)
 
-        AuthResponse authResponse =
-                step("Авторизация пользователя", () ->
-                        given(LoginRequestSpecification)
-                                .body(authRequest)
-                                .when()
-                                .post("")
-                                .then()
-                                .spec(LoginResponseSpecification)
-                                .extract().as(AuthResponse.class)
-                );
+                    );
+            open("/favicon.png");
+            getWebDriver().manage().addCookie(new Cookie("userID", authResponse.getUserId()));
+            getWebDriver().manage().addCookie(new Cookie("expires", authResponse.getExpires()));
+            getWebDriver().manage().addCookie(new Cookie("token", authResponse.getToken()));
 
-        String userID = authResponse.getUserId();
+            userID = authResponse.getUserId();
+            token = authResponse.getToken();
 
+        });
 
-// Добавляем книгу пользователю post
+        step("Удаление книги из профиля(корзины) через API", () -> {
 
-        IsbnRequest isbnRequest = new IsbnRequest(); //добавляем взаимодействие с моделью isbn чтобы получить isbn.
-        isbnRequest.setIsbn(isbn);
-
-        AddBookRequest addBookRequest = new AddBookRequest(); //добавляем взаимодействие с моделью чтобы получить isbn.
-        List<AddBookRequest> isbnList = new ArrayList<>();
-        isbnList.add(isbnRequest);
-
-        addBookRequest.setUserId(userID);
-        addBookRequest.setCollectionOfIsbns(isbnList);
-
-
-        AddBookResponse addBookResponse =
-                step("Добавление 1 книги в спсок - корзину (в профиль клиента)", () ->
-                        given(AddOneBookRequestSpecification)
-                                .header("Authorization", "Bearer " + authResponse.getToken())
-                                .body(addBookRequest)
-                                .when()
-                                .post("")
-                                .then()
-                                .spec(AddOneBookResponseSpecification)
-                                .extract().as(AddBookResponse.class)
-                );
+            step("Удаление книг через отправку API запросн, на случай если книги были добавлены ранее", () ->
+                    given(DeleteOneBookRequestSpecification)
+                            .header("Authorization", "Bearer " + token)
+                            .queryParams("UserId", userID)
+                            .when()
+                            .delete("")
+                            .then()
+                            .spec(DeleteOneBookResponseSpecification)
+            );
+        });
 
 
-// Удаление книг
+        step("Добавление книги", () -> {
+            IsbnRequest isbnRequest = new IsbnRequest(); //добавляем взаимодействие с моделью isbn чтобы получить isbn значение.
+            isbnRequest.setIsbn(isbn);
 
-        given(DeleteOneBookRequestSpecification)
-                .header("Authorization", "Bearer " + authResponse.getToken())
-                .queryParams("UserId", authResponse.getUserId())
-                .when()
-                .delete("")
-                .then()
-                .spec(DeleteOneBookResponseSpecification);
+            AddBookRequest addBookRequest = new AddBookRequest(); //добавляем взаимодействие с моделью общего запроса.
+            List<IsbnRequest> isbnList = new ArrayList<>();
+            isbnList.add(isbnRequest);
 
-// Открываем браузер вставляем куки
+            addBookRequest.setUserId(userID);
+            addBookRequest.setCollectionOfIsbns(isbnList);
 
-        open("/images/bookimage0.jpg");
-        getWebDriver().manage().addCookie(new Cookie("userID", authResponse.getUserId()));
-        getWebDriver().manage().addCookie(new Cookie("expires", authResponse.getExpires()));
-        getWebDriver().manage().addCookie(new Cookie("token", authResponse.getToken()));
-
-        profilepage.openProfilePage()
-                .checkUserName()
-                .checkNameBookInList()
-                .checkBook();
+            AddBookResponse addBookResponse =
+                    given(AddOneBookRequestSpecification)
+                            .header("Authorization", "Bearer " + token)
+                            .body(addBookRequest)
+                            .when()
+                            .post("")
+                            .then()
+                            .spec(AddOneBookResponseSpecification)
+                            .extract().as(AddBookResponse.class);
+        });
 
 
+        // Удаление книг
+        step("Удаление ранее добавленной книги", () -> {
+            given(DeleteOneBookRequestSpecification)
+                    .header("Authorization", "Bearer " + token)
+                    .queryParams("UserId", userID)
+                    .when()
+                    .delete("")
+                    .then()
+                    .spec(DeleteOneBookResponseSpecification);
+        });
+
+        step("Проверка отсутствия книги в профиле клиента (корзине) через UI", () -> {
+            ProfilePage profilepage = new ProfilePage();
+            profilepage.openProfilePage()
+                    .checkUserName()
+                    .checkNameBookInList()
+                    .checkBook();
+        });
     }
 }

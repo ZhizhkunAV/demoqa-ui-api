@@ -6,5 +6,6 @@ import java.util.List;
 
 @Data
 public class AddBookResponse {
-    List<AddBookResponse> books;
+    List<IsbnRequest> books;
+
 }

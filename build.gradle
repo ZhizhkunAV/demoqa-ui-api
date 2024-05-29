@@ -4,31 +4,38 @@ plugins {
     id 'io.qameta.allure' version '2.11.2'
 }
 
-group 'org.example'
-version '1.0-SNAPSHOT'
+repositories {
+    mavenCentral()
+}
+
+def restAssuredVersion = "5.4.0",
+    allureVersion = "2.27.0",
+    selenideVersion = "7.2.3"
 
 allure {
     report {
-        version.set('2.27.0')
+        version.set(allureVersion)
     }
     adapter { // отвечает за появление папочки build/allure-results
         aspectjWeaver.set(true) //обработка аннотации @Step
         frameworks {
             junit5 { //название фреймворка
-                adapterVersion.set("2.27.0") //версия интеграции фреймворка и Allure
+                adapterVersion.set(allureVersion) //версия интеграции фреймворка и Allure
             }
         }
     }
 }
 
-repositories {
-    mavenCentral()
+compileJava {
+    options.encoding = 'UTF-8'
+}
+
+compileTestJava {
+    options.encoding = 'UTF-8'
 }
 
 
-def restAssuredVersion = "5.4.0",
-    allureVersion = "2.21.0",
-    selenideVersion = "6.19.1"
+
 
 
 dependencies {
@@ -46,13 +53,8 @@ dependencies {
     testRuntimeOnly('org.junit.jupiter:junit-jupiter-engine:5.9.0')
 }
 
-test {
-    useJUnitPlatform()
+tasks.withType(Test) {
     systemProperties(System.getProperties())
-}
-
-
-tasks.withType(Test).configureEach {
     useJUnitPlatform()
 
     testLogging {
@@ -63,10 +65,11 @@ tasks.withType(Test).configureEach {
     }
 }
 
-compileJava {
-    options.encoding = 'UTF-8'
-}
 
-compileTestJava {
-    options.encoding = 'UTF-8'
+
+
+task reqres_test(type: Test) {
+    useJUnitPlatform {
+        includeTags("alls")
+    }
 }
