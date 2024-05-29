@@ -1,13 +1,14 @@
 package tests;
 
 import io.restassured.response.Response;
-import models.lombok.AddBookRequest;
-import models.lombok.AuthRequest;
-import models.lombok.AuthResponse;
+import models.lombok.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.Cookie;
 import pageobjects.ProfilePage;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static api.specifications.SpecForAllTests.*;
 import static com.codeborne.selenide.Selenide.open;
@@ -18,7 +19,9 @@ import static io.qameta.allure.Allure.step;
 
 
 public class DeleteBookInStoreTest extends TestBase {
+    String isbn = "9781449365035";
     ProfilePage profilepage = new ProfilePage();
+
 
     @DisplayName("Удаление книги из корзины онлайн магазина")
     @Test
@@ -41,23 +44,34 @@ public class DeleteBookInStoreTest extends TestBase {
                                 .extract().as(AuthResponse.class)
                 );
 
-        String isbn = "9781449365035";
-        String bookData = format("{\"userId\":\"%s\",\"collectionOfIsbns\":[{\"isbn\":\"%s\"}]}",
-                authResponse.getUserId(), isbn);
+        String userID = authResponse.getUserId();
+
 
 // Добавляем книгу пользователю post
-        AddBookRequest addBookRequest = new AddBookRequest();
-        addBookRequest.setUserId();
-        addBookRequest.setCollectionOfIsbns();
 
-        given(AddOneBookRequestSpecification)
+        IsbnRequest isbnRequest = new IsbnRequest(); //добавляем взаимодействие с моделью isbn чтобы получить isbn.
+        isbnRequest.setIsbn(isbn);
 
-                .header("Authorization", "Bearer " + authResponse.getToken())
-                .body(addBookRequest)
-                .when()
-                .post("")
-                .then()
-                .spec(AddOneBookResponseSpecification);
+        AddBookRequest addBookRequest = new AddBookRequest(); //добавляем взаимодействие с моделью чтобы получить isbn.
+        List<AddBookRequest> isbnList = new ArrayList<>();
+        isbnList.add(isbnRequest);
+
+        addBookRequest.setUserId(userID);
+        addBookRequest.setCollectionOfIsbns(isbnList);
+
+
+        AddBookResponse addBookResponse =
+                step("Добавление 1 книги в спсок - корзину (в профиль клиента)", () ->
+                        given(AddOneBookRequestSpecification)
+                                .header("Authorization", "Bearer " + authResponse.getToken())
+                                .body(addBookRequest)
+                                .when()
+                                .post("")
+                                .then()
+                                .spec(AddOneBookResponseSpecification)
+                                .extract().as(AddBookResponse.class)
+                );
+
 
 // Удаление книг
 

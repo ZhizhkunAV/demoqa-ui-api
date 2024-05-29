@@ -3,8 +3,10 @@ package models.lombok;
 import lombok.Data;
 
 import java.util.ArrayList;
+import java.util.List;
+
 @Data
 public class AddBookRequest {
-    public String userId;
-    public ArrayList<AddBookRequest> collectionOfIsbns;
+    String userId;
+    List<AddBookRequest> collectionOfIsbns;
 }
