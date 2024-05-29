@@ -1,6 +1,6 @@
 package tests;
 
 public class TestData {
-    public static String username = "testtestov31",
-            password = "Testtestov31_%";
+    public static String username = "First",
+            password = "Kjrj1923@Q";
 }

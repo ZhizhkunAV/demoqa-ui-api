@@ -6,7 +6,6 @@ import io.qameta.allure.SeverityLevel;
 import models.lombok.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
 import org.openqa.selenium.Cookie;
 import pageobjects.ProfilePage;
 
@@ -18,28 +17,29 @@ import static com.codeborne.selenide.Selenide.open;
 import static com.codeborne.selenide.WebDriverRunner.getWebDriver;
 import static io.qameta.allure.Allure.step;
 import static io.restassured.RestAssured.given;
+import static tests.TestData.password;
+import static tests.TestData.username;
 
 @DisplayName("Автотестирование UI+API")
 public class DeleteBookInStoreTest extends TestBase {
     public String isbn = "9781449365035";
     public String userID, token;
 
-
     @DisplayName("Удаление книги из корзины онлайн магазина")
     @Severity(SeverityLevel.BLOCKER)
     @Tag("alls")
     @Owner("ZhizhkunAV")
-    @Test
+    @org.junit.jupiter.api.Test
     void addBookToCollectionTest() {
         // Авторизация пользователя - post
         step("Авторизация пользователя через API с добавлением cookies авторизации через UI", () -> {
 
             AuthRequest authRequest = new AuthRequest();
-            authRequest.setUserName("First");
-            authRequest.setPassword("Kjrj1923@Q");
+            authRequest.setUserName(username);
+            authRequest.setPassword(password);
 
             AuthResponse authResponse =
-                    step("Perform a POST request", () ->
+                    step("Отправка запроса на авторизацию", () ->
                             given(LoginRequestSpecification)
                                     .body(authRequest)
                                     .when()
@@ -47,7 +47,6 @@ public class DeleteBookInStoreTest extends TestBase {
                                     .then()
                                     .spec(LoginResponseSpecification)
                                     .extract().as(AuthResponse.class)
-
                     );
             open("/favicon.png");
             getWebDriver().manage().addCookie(new Cookie("userID", authResponse.getUserId()));
