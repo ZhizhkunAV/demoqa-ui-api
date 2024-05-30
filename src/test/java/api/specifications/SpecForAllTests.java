@@ -6,45 +6,31 @@ import io.restassured.specification.ResponseSpecification;
 
 import static helpers.CustomAllureListener.withCustomTemplates;
 import static io.restassured.RestAssured.with;
-import static io.restassured.filter.log.LogDetail.*;
+import static io.restassured.filter.log.LogDetail.ALL;
 import static io.restassured.http.ContentType.JSON;
 
 public class SpecForAllTests {
 
-    public static RequestSpecification LoginRequestSpecification = with()
+    public static RequestSpecification requestSpecification = with()
             .filter(withCustomTemplates())
-            .contentType(JSON)
+            .log().uri()
+            .log().method()
             .log().all()
-            .basePath("/Account/v1/Login");
+            .contentType(JSON);
 
-    public static ResponseSpecification LoginResponseSpecification = new ResponseSpecBuilder()
+    public static ResponseSpecification responseSpecStatusCode200 = new ResponseSpecBuilder()
             .expectStatusCode(200)
             .log(ALL)
             .build();
 
 
-    public static RequestSpecification AddOneBookRequestSpecification = with()
-            .filter(withCustomTemplates())
-            .log().uri()
-            .log().method()
-            .log().body()
-            .contentType(JSON)
-            .basePath("/BookStore/v1/Books");
-
-    public static ResponseSpecification AddOneBookResponseSpecification = new ResponseSpecBuilder()
+    public static ResponseSpecification responseSpecStatusCode201 = new ResponseSpecBuilder()
             .expectStatusCode(201)
             .log(ALL)
             .build();
 
-    public static RequestSpecification DeleteOneBookRequestSpecification = with()
-            .filter(withCustomTemplates())
-            .log().uri()
-            .log().method()
-            .log().body()
-            .contentType(JSON)
-            .basePath("/BookStore/v1/Books");
 
-    public static ResponseSpecification DeleteOneBookResponseSpecification = new ResponseSpecBuilder()
+    public static ResponseSpecification responseSpecStatusCode204 = new ResponseSpecBuilder()
             .expectStatusCode(204)
             .log(ALL)
             .build();

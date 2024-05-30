@@ -25,6 +25,7 @@ public class TestBase  {
         browserVersion = System.getProperty("browserVersion", "120.0");
         Configuration.baseUrl = "https://demoqa.com";
         RestAssured.baseURI = "https://demoqa.com";
+        RestAssured.basePath = "";
         pageLoadStrategy = "eager";
         remote = "https://user1:1234@" + System.getProperty("wdHost", "selenoid.autotests.cloud") + "/wd/hub";
         DesiredCapabilities capabilities = new DesiredCapabilities();

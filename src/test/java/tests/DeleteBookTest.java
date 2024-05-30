@@ -21,7 +21,7 @@ import static tests.TestData.password;
 import static tests.TestData.username;
 
 @DisplayName("Автотестирование UI+API")
-public class DeleteBookInStoreTest extends TestBase {
+public class DeleteBookTest extends TestBase {
     public String isbn = "9781449365035";
     public String userID, token;
 
@@ -40,12 +40,12 @@ public class DeleteBookInStoreTest extends TestBase {
 
             AuthResponse authResponse =
                     step("Отправка запроса на авторизацию", () ->
-                            given(LoginRequestSpecification)
+                            given(requestSpecification)
                                     .body(authRequest)
                                     .when()
-                                    .post("")
+                                    .post("/Account/v1/Login")
                                     .then()
-                                    .spec(LoginResponseSpecification)
+                                    .spec(responseSpecStatusCode200)
                                     .extract().as(AuthResponse.class)
                     );
             open("/favicon.png");
@@ -61,13 +61,13 @@ public class DeleteBookInStoreTest extends TestBase {
         step("Удаление книги из профиля(корзины) через API", () -> {
 
             step("Удаление книг через отправку API запросн, на случай если книги были добавлены ранее", () ->
-                    given(DeleteOneBookRequestSpecification)
+                    given(requestSpecification)
                             .header("Authorization", "Bearer " + token)
                             .queryParams("UserId", userID)
                             .when()
-                            .delete("")
+                            .delete("/BookStore/v1/Books")
                             .then()
-                            .spec(DeleteOneBookResponseSpecification)
+                            .spec(responseSpecStatusCode204)
             );
         });
 
@@ -84,28 +84,16 @@ public class DeleteBookInStoreTest extends TestBase {
             addBookRequest.setCollectionOfIsbns(isbnList);
 
             AddBookResponse addBookResponse =
-                    given(AddOneBookRequestSpecification)
+                    given(requestSpecification)
                             .header("Authorization", "Bearer " + token)
                             .body(addBookRequest)
                             .when()
-                            .post("")
+                            .post("/BookStore/v1/Books")
                             .then()
-                            .spec(AddOneBookResponseSpecification)
+                            .spec(responseSpecStatusCode201)
                             .extract().as(AddBookResponse.class);
         });
 
-
-        // Удаление книг
-/*        step("Удаление ранее добавленной книги", () -> {
-            given(DeleteOneBookRequestSpecification)
-                    .header("Authorization", "Bearer " + token)
-                    .queryParams("UserId", userID)
-                    .when()
-                    .delete("")
-                    .then()
-                    .spec(DeleteOneBookResponseSpecification);
-        });
-*/
         step("Проверка отсутствия книги в профиле клиента (корзине) через UI", () -> {
             ProfilePage profilepage = new ProfilePage();
             profilepage.openProfilePage()
