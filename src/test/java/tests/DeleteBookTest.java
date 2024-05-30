@@ -58,18 +58,16 @@ public class DeleteBookTest extends TestBase {
 
         });
 
-        step("Удаление книги из профиля(корзины) через API", () -> {
 
-            step("Удаление книг через отправку API запросн, на случай если книги были добавлены ранее", () ->
-                    given(requestSpecification)
-                            .header("Authorization", "Bearer " + token)
-                            .queryParams("UserId", userID)
-                            .when()
-                            .delete("/BookStore/v1/Books")
-                            .then()
-                            .spec(responseSpecStatusCode204)
-            );
-        });
+        step("Удаление книг через отправку API запросн, на случай если книги были добавлены ранее", () ->
+                given(requestSpecification)
+                        .header("Authorization", "Bearer " + token)
+                        .queryParams("UserId", userID)
+                        .when()
+                        .delete("/BookStore/v1/Books")
+                        .then()
+                        .spec(responseSpecStatusCode204)
+        );
 
 
         step("Добавление книги", () -> {
@@ -100,7 +98,8 @@ public class DeleteBookTest extends TestBase {
                     .checkUserName(username)
                     .checkHaveBook("Speaking JavaScript")
                     .deleteBook()
-                    .checkBookDeleted("Speaking JavaScript");;
+                    .checkBookDeleted("Speaking JavaScript");
+            ;
         });
     }
 }
