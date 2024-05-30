@@ -7,7 +7,7 @@ import models.lombok.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.openqa.selenium.Cookie;
-import pageobjects.ProfilePage;
+import pages.ProfilePage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -96,7 +96,7 @@ public class DeleteBookInStoreTest extends TestBase {
 
 
         // Удаление книг
-        step("Удаление ранее добавленной книги", () -> {
+/*        step("Удаление ранее добавленной книги", () -> {
             given(DeleteOneBookRequestSpecification)
                     .header("Authorization", "Bearer " + token)
                     .queryParams("UserId", userID)
@@ -105,13 +105,14 @@ public class DeleteBookInStoreTest extends TestBase {
                     .then()
                     .spec(DeleteOneBookResponseSpecification);
         });
-
+*/
         step("Проверка отсутствия книги в профиле клиента (корзине) через UI", () -> {
             ProfilePage profilepage = new ProfilePage();
             profilepage.openProfilePage()
-                    .checkUserName()
-                    .checkNameBookInList()
-                    .checkBook();
+                    .checkUserName(username)
+                    .checkHaveBook("Speaking JavaScript")
+                    .deleteBook()
+                    .checkBookDeleted("Speaking JavaScript");;
         });
     }
 }
