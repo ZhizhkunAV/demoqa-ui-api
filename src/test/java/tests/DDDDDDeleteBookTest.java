@@ -17,11 +17,12 @@ import static com.codeborne.selenide.Selenide.open;
 import static com.codeborne.selenide.WebDriverRunner.getWebDriver;
 import static io.qameta.allure.Allure.step;
 import static io.restassured.RestAssured.given;
+import static io.restassured.RestAssured.requestSpecification;
 import static tests.TestData.password;
 import static tests.TestData.username;
 
 @DisplayName("Автотестирование UI+API")
-public class DeleteBookTest extends TestBase {
+public class DDDDDDeleteBookTest extends TestBase {
     public String isbn = "9781449365035";
     public String userID, token;
 
