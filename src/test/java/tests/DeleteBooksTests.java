@@ -3,6 +3,7 @@ package tests;
 import api.specifications.BookApi;
 import helpers.WithLogin;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import pages.ProfilePage;
 
@@ -16,6 +17,7 @@ public class DeleteBooksTests extends TestBase {
     BookApi bookApi = new BookApi();
 
     @Test
+    @Tag("alls")
     @WithLogin
     @DisplayName("Удаление книги из корзины онлайн магазина")
     void deleteAllBooksTest() {
