@@ -28,7 +28,7 @@ public class DDDDDDeleteBookTest extends TestBase {
 
     @DisplayName("Удаление книги из корзины онлайн магазина")
     @Severity(SeverityLevel.BLOCKER)
-    @Tag("alls")
+    
     @Owner("ZhizhkunAV")
     @org.junit.jupiter.api.Test
     void addBookToCollectionTest() {
