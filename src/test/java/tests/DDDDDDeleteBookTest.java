@@ -22,7 +22,7 @@ import static tests.TestData.password;
 import static tests.TestData.username;
 
 @DisplayName("Автотестирование UI+API")
-public class DDDDDDeleteBookTest extends TestBase {
+public class DelBookTest extends TestBase {
     public String isbn = "9781449365035";
     public String userID, token;
 
