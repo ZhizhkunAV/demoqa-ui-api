@@ -29,7 +29,7 @@ public class TestBase  {
         Configuration.browserVersion = driverConfig.browserVersion();
         Configuration.browserSize = driverConfig.browserSize();
         Configuration.remote = driverConfig.browserRemoteUrl();
-        pageLoadStrategy = "eager";
+
 
         DesiredCapabilities capabilities = new DesiredCapabilities();
         capabilities.setCapability("selenoid:options", Map.<String, Object>of(
