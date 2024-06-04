@@ -2,7 +2,7 @@ package tests;
 
 import com.codeborne.selenide.Configuration;
 import com.codeborne.selenide.logevents.SelenideLogger;
-import config.web.DriverConfig;
+import config.DriverConfig;
 import io.qameta.allure.selenide.AllureSelenide;
 import io.restassured.RestAssured;
 import org.aeonbits.owner.ConfigFactory;
@@ -13,7 +13,6 @@ import org.openqa.selenium.remote.DesiredCapabilities;
 
 import java.util.Map;
 
-import static com.codeborne.selenide.Configuration.*;
 import static com.codeborne.selenide.Selenide.closeWebDriver;
 import static helpers.Attach.*;
 import static helpers.Attach.addVideo;
@@ -22,14 +21,16 @@ import static helpers.Attach.addVideo;
 public class TestBase  {
 
     @BeforeAll
-    static void setup() {
+    static void beforeAll() {
         DriverConfig driverConfig = ConfigFactory.create(DriverConfig.class);
         Configuration.baseUrl = "https://demoqa.com";
         Configuration.browser = driverConfig.browserName();
         Configuration.browserVersion = driverConfig.browserVersion();
         Configuration.browserSize = driverConfig.browserSize();
         Configuration.remote = driverConfig.browserRemoteUrl();
-
+        RestAssured.baseURI = "https://demoqa.com";
+        RestAssured.basePath = "";
+        Configuration.pageLoadStrategy = "eager";
 
         DesiredCapabilities capabilities = new DesiredCapabilities();
         capabilities.setCapability("selenoid:options", Map.<String, Object>of(
@@ -43,6 +44,7 @@ public class TestBase  {
     void beforeEach() {
         SelenideLogger.addListener("AllureSelenide", new AllureSelenide());
     }
+
 
     @AfterEach
     void shutDown() {

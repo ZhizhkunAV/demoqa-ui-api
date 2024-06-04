@@ -1,4 +1,4 @@
-package tests;
+package testdata;
 
 public class TestData {
     public static String username = "First",

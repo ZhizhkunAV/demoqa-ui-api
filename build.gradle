@@ -4,10 +4,6 @@ plugins {
     id 'io.qameta.allure' version '2.11.2'
 }
 
-java {
-    sourceCompatibility = '11'
-    targetCompatibility = '11'
-}
 
 repositories {
     mavenCentral()

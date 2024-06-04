@@ -8,8 +8,8 @@ import org.junit.jupiter.api.Test;
 import pages.ProfilePage;
 
 import static api.specifications.AuthApi.authorizeRequest;
-import static tests.TestData.bookName;
-import static tests.TestData.username;
+import static testdata.TestData.bookName;
+import static testdata.TestData.username;
 
 @DisplayName("Автотестирование UI+API")
 public class DeleteBooksTests extends TestBase {

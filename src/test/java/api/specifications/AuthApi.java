@@ -7,8 +7,8 @@ import tests.TestBase;
 
 import static api.specifications.SpecForAllTests.requestSpecification;
 import static io.restassured.RestAssured.given;
-import static tests.TestData.password;
-import static tests.TestData.username;
+import static testdata.TestData.password;
+import static testdata.TestData.username;
 
 @EqualsAndHashCode(callSuper = true)
 public class AuthApi extends TestBase {
