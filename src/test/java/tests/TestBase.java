@@ -2,10 +2,13 @@ package tests;
 
 import com.codeborne.selenide.Configuration;
 import com.codeborne.selenide.logevents.SelenideLogger;
+import config.web.DriverConfig;
 import io.qameta.allure.selenide.AllureSelenide;
 import io.restassured.RestAssured;
+import org.aeonbits.owner.ConfigFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.openqa.selenium.remote.DesiredCapabilities;
 
 import java.util.Map;
@@ -20,21 +23,24 @@ public class TestBase  {
 
     @BeforeAll
     static void setup() {
-        browser = System.getProperty("browser", "chrome");
-        browserSize = System.getProperty("browserSize", "1920x1080");
-        browserVersion = System.getProperty("browserVersion", "120.0");
+        DriverConfig driverConfig = ConfigFactory.create(DriverConfig.class);
         Configuration.baseUrl = "https://demoqa.com";
-        RestAssured.baseURI = "https://demoqa.com";
-        RestAssured.basePath = "";
+        Configuration.browser = driverConfig.browserName();
+        Configuration.browserVersion = driverConfig.browserVersion();
+        Configuration.browserSize = driverConfig.browserSize();
+        Configuration.remote = driverConfig.browserRemoteUrl();
         pageLoadStrategy = "eager";
-        remote = "https://user1:1234@" + System.getProperty("wdHost", "selenoid.autotests.cloud") + "/wd/hub";
+
         DesiredCapabilities capabilities = new DesiredCapabilities();
         capabilities.setCapability("selenoid:options", Map.<String, Object>of(
                 "enableVNC", true,
                 "enableVideo", true
         ));
-        browserCapabilities = capabilities;
+        Configuration.browserCapabilities = capabilities;
+    }
 
+    @BeforeEach
+    void beforeEach() {
         SelenideLogger.addListener("AllureSelenide", new AllureSelenide());
     }
 

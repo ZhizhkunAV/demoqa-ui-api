@@ -46,6 +46,7 @@ dependencies {
             "org.slf4j:slf4j-simple:2.0.12",
             'io.github.bonigarcia:webdrivermanager:5.2.1',
             'org.aeonbits.owner:owner:1.0.4',
+            'org.hamcrest:hamcrest-all:1.3',
             "org.assertj:assertj-core:3.6.1"
     )
 
@@ -69,4 +70,10 @@ task reqres_test(type: Test) {
     useJUnitPlatform {
         includeTags("alls")
     }
+}
+
+test {
+    useJUnitPlatform()
+    //-PbaseUrl=https://github.com -Pbrowser=FIREFOX
+    systemProperties(System.getProperties())
 }
